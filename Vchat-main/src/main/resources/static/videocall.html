@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+        
+       
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <div id="room-info"></div> <!-- Container for room info -->
+
+    <script src="https://unpkg.com/zego-superboard-web@2.15.3/index.js"></script>
+    <script src="https://unpkg.com/@zegocloud/zego-uikit-prebuilt/zego-uikit-prebuilt.js"></script>
+
+    <script>
+        window.onload = function () {
+            function getUrlParams(url) {
+                let urlStr = url.split('?')[1];
+                const urlSearchParams = new URLSearchParams(urlStr);
+                const result = Object.fromEntries(urlSearchParams.entries());
+                return result;
+            }
+
+            const roomID = getUrlParams(window.location.href)['roomID'] || (Math.floor(Math.random() * 10000) + "");
+            const userID = Math.floor(Math.random() * 10000) + "";
+            const userName = getUrlParams(window.location.href)['username'] || "userName" + userID;
+            const appID = 2098290806;
+            const serverSecret = "4e36a6f240e1be25427082bfdd068bdb";
+            const kitToken = ZegoUIKitPrebuilt.generateKitTokenForTest(appID, serverSecret, roomID, userID, userName);
+
+            const zp = ZegoUIKitPrebuilt.create(kitToken);
+            
+            zp.addPlugins({ ZegoSuperBoardManager });
+
+            zp.joinRoom({
+                container: document.querySelector("#root"),
+                sharedLinks: [
+                    {
+                        name: 'Personal link',
+                        url: `${window.location.protocol}//${window.location.host}${window.location.pathname}?roomID=${roomID}`,
+                    },
+                    {
+                        name: 'Room ID',
+                        url: ` ${roomID}`, // Display the room ID directly
+                    }
+                ],
+                scenario: {
+                    mode: ZegoUIKitPrebuilt.VideoConference,
+                },
+                turnOnMicrophoneWhenJoining: false,
+                turnOnCameraWhenJoining: false,
+                showMyCameraToggleButton: true,
+                showMyMicrophoneToggleButton: true,
+                showAudioVideoSettingsButton: true,
+                showScreenSharingButton: true,
+                showTextChat: true,
+                showUserList: true,
+                maxUsers: 12,
+                layout: "Auto",
+                showLayoutButton: true,
+            });
+
+            // Display room ID on the page
+            document.getElementById('room-info').innerText = `Room ID: ${roomID}`;
+        }
+    </script>
+</body>
+
+</html>
